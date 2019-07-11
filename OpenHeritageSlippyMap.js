@@ -7,7 +7,6 @@ class Configuration {
    * in the map's div.
    */
   canOverrideFromDivAttributes = true;
-
   /**
    * The Center of the Map.
    * Default Parameter is roughly in the center of Belgium.
@@ -87,6 +86,7 @@ class Configuration {
     }
   }
 }
+
 /**
  * Creates and displays a map in place of the div with id mapId
  * @param {string} mapId The HTML id of the div that should become the map
@@ -115,7 +115,8 @@ function showMap(mapId, configuration) {
 }
 
 /**
- * Queries the Overpass API and adds the returned points on the map. 
+ * Queries the Overpass API and adds the returned points on the map.
+ * This is asynchronous, and the points will be added once the query is completed.
  * @param {*} map the map
  * @param {Configuration} configuration the configuration object. can be null.
  */
@@ -189,6 +190,6 @@ function queryAndAddPointsToMap(map, configuration) {
       }
     }
     else
-      console.log("No elements found.");
+      console.log("No elements found");
   }
 }
