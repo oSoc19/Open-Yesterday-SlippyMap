@@ -50,7 +50,7 @@ class Configuration {
   /**
    * Override this configuration object's member from a div's attribute.
    * The attributes must be named the same as the members, and they are checked
-   * to see if the attribute's string is well-formed.
+   * to see if the attribute's String is well-formed.
    * @param {*} div the div object
    */
   overrideFromDivAttributes(div) {
@@ -63,7 +63,7 @@ class Configuration {
     let hasSetViewCenter = false;
     if (div.hasAttribute('viewCenter')) {
       let value = div.getAttribute('viewCenter');
-      // Must be a string with 2 floating-point numbers, separated by a comma
+      // Must be a String with 2 floating-point numbers, separated by a comma
       // and between brackets. e.g [3.14, 3.14]
       if (/^\[(\d+.\d+)\s?,\s?(\d+.\d+)\]$/.test(value)) {
         this.viewCenter = JSON.parse(value);
@@ -118,8 +118,8 @@ class Configuration {
 
   /**
    * Centers the map on a given city
-   * @param {*} city A value in the 'City' variable.
-   * @param {bool} shouldZoom If set to true, the zoom level will be adjusted as well to
+   * @param {number} city The unique identifier of a City, @see City
+   * @param {Boolean} shouldZoom If set to true, the zoom level will be adjusted as well to
    *                          make the whole city visible. Default is true.
    */
   focusOnCity(city, shouldZoom = true) {
@@ -166,7 +166,7 @@ class Configuration {
 
 /**
  * Creates and displays a map in place of the div with id mapId
- * @param {string} mapId The HTML id of the div that should become the map
+ * @param {String} mapId The HTML id of the div that should become the map
  * @param {Configuration} configuration the Configuration object. 
  *                        Can be undefined. If that's the case, a default-constructed object will be used.
  *                        However, if you want to reuse the configuration object later, it's better to pass one.
@@ -198,9 +198,9 @@ function showMap(mapId, configuration) {
 /**
  * Updates a map using a configuration object.
  * This will remove all map layers as well if "removeOldLayers" is set to true.
- * @param {*} map the map
+ * @param {Leaflet.Map} map the map
  * @param {Configuration} configuration the configuration object
- * @param {bool} removeOldLayers if set to true, old layers will be removed. Default is true.
+ * @param {Boolean} removeOldLayers if set to true, old layers will be removed. Default is true.
  */
 function updateMap(map, configuration, removeOldLayers = true) {
   if(configuration === undefined) {
@@ -220,8 +220,8 @@ function updateMap(map, configuration, removeOldLayers = true) {
 /**
  * Queries the Overpass API and adds the returned points on the map.
  * This is asynchronous, and the points will be added once the query is completed.
- * @param {*} map the map
- * @param {string} query the query
+ * @param {Leaflet.Map} map the map
+ * @param {String} query the query
  * @param {Configuration} configuration the configuration object. can be null.
  */
 function queryAndShowFeatures(map, query, configuration) {
@@ -250,7 +250,7 @@ function queryAndShowFeatures(map, query, configuration) {
 
   /**
   * Handles the result of a successful query to the Overpass API, adding the features as markers on the map.
-  * @param {string} rawJSON the raw JSON string
+  * @param {String} rawJSON the raw JSON String
   * @param {Configuration} configuration the configuration object. can be null.
   */
   function handleQueryResult(rawJSON, configuration) {
