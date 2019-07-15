@@ -1,16 +1,4 @@
 /**
- * The unique identifiers given to some basic, built-in queries.
- */
-const BasicQuery = {
-  // Show factories
-  Factories: 1,
-  // Show chimneys
-  Chimneys: 2,
-  // Show breweries
-  Breweries: 3,
-}
-
-/**
  * The Configuration of a map.
  * 
  * For the configuration to be applied, you must pass it to showMap or call updateMap manually.
