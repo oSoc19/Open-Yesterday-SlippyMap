@@ -62,7 +62,6 @@ class Configuration {
     }
 
     // Overriding center
-    let hasSetcenter = false;
     if (div.hasAttribute('center')) {
       let value = div.getAttribute('center');
       // Must be a string with 2 floating-point numbers, separated by a comma
@@ -130,7 +129,7 @@ function showMap(mapId, conf) {
     conf.useDivAttributes(div);
   }
 
-  let map = L.map('mapid');
+  let map = L.map(mapId);
   updateMap(map, conf);
 
   // If the div has a "focusOn" attribute, call focusOn on the div.
@@ -224,10 +223,39 @@ function focusOn(map, query) {
 }
 
 /**
+ * Returns a simple overpass query that returns all node, ways and relations
+ * in the bbox that have a key/value.
+ * If key is undefined, all points will be returned.
+ * @param {*} key 
+ * @param {*} value 
+ */
+function getSimpleQuery(key, value) {
+  function getParam() {
+    if(key == undefined)
+      return "";
+    return `["${key}"="${value}"]`;
+  }
+
+  var query = `
+  [out:json][timeout:25];
+  // gather results
+  (
+    nwr${getParam()}({{bbox}});
+   );
+  // print results
+  out body;
+  >;
+  out skel qt;`;
+  return query;
+}
+
+/**
  * Queries the Overpass API and adds the returned points on the map.
  * This is asynchronous, and the points will be added once the query is completed.
  * @param {Leaflet.Map} map the map
- * @param {string} query the query
+ * @param {string} query the query. For generating simple queries, @see getSimpleQuery
+ *                 Note: occurences of {{bbox}} inside the query will be replaced with the bounds
+ *                 of the map.
  * @param {Configuration} conf the configuration object. can be null.
  */
 function queryAndShowFeatures(map, query, conf) {
@@ -235,12 +263,30 @@ function queryAndShowFeatures(map, query, conf) {
   if (configuration == undefined)
     configuration = new Configuration();
 
+  // Note: We cannot use map.getBounds().toBBoxString() because
+  // for some reason overpass wants another format which is 
+  //    southwest_lat,southwest_lng,northeast_lat,northeast_lng
+  // instead of
+  //    southwest_lng,southwest_lat,northeast_lng,northeast_lat
+
+  // Create the bbox string
+  let bounds = map.getBounds();
+  let sw = bounds.getSouthWest();
+  let ne = bounds.getNorthEast();
+  let bboxString = `${sw.lat},${sw.lng},${ne.lat},${ne.lng}`;
+
+  // Replace all occurences of {{bbox}} inside the query with 
+  // the bbox string
+  query = query.replace("{{bbox}}", bboxString);
+  console.log("Map Bounds: %o", bboxString);
+
   // Create the query URL for the OHM Overpass API.
-  query = "http://overpass-api.openhistoricalmap.org/api/interpreter?data=".concat(query);
-  query = encodeURI(query);
+  let queryURL = "http://overpass-api.openhistoricalmap.org/api/interpreter?data=".concat(query);
+  console.log("query: " + query);
+  queryURL = encodeURI(queryURL);
   // Create the XMLHttpRequest to send the GET request asynchronously
   let xhttp = new XMLHttpRequest();
-  xhttp.open("GET", query);
+  xhttp.open("GET", queryURL);
   // Set the callback
   xhttp.onreadystatechange = function () {
     // Only handle the result if the request has been completed
