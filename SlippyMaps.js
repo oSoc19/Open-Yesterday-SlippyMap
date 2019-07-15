@@ -1,4 +1,17 @@
 /**
+ * The unique identifiers given to cities for the
+ * Configuration.centerOnCity function
+ */
+const City = {
+  Gent: 1,
+  Brugge: 2,
+  Kortrijk: 3,
+  Antwerpen: 4,
+  Brussel: 5,
+  Bruxelles: 5,
+}
+
+/**
  * The Configuration object used to set the properties of the map.
  */
 class Configuration {
@@ -47,12 +60,15 @@ class Configuration {
     }
 
     // Overriding viewCenter
+    let hasSetViewCenter = false;
     if (div.hasAttribute('viewCenter')) {
       let value = div.getAttribute('viewCenter');
       // Must be a string with 2 floating-point numbers, separated by a comma
       // and between brackets. e.g [3.14, 3.14]
-      if (/^\[(\d+.\d+)\s?,\s?(\d+.\d+)\]$/.test(value))
+      if (/^\[(\d+.\d+)\s?,\s?(\d+.\d+)\]$/.test(value)) {
         this.viewCenter = JSON.parse(value);
+        hasSetViewCenter = true;
+      }
       else
         warnIllFormedAttr('viewCenter', value);
     }
@@ -84,6 +100,67 @@ class Configuration {
       else
         warnIllFormedAttr('maxElements', value);
     }
+
+    // Also accept a 'city' attribute (which should be a value in the 'City' constant)
+    // to focus on a given city.
+    // If the user has both a viewCenter and city attribute, warn it.
+    if(div.hasAttribute('city')) {
+      let city = City[div.getAttribute('city')];
+      if(city == undefined)
+        warnIllFormedAttr('city', 'unknown city (undefined)');
+      else {
+        this.focusOnCity(city);
+        if(hasSetViewCenter)
+          console.warn("viewCenter attribute was overriden by city attribute");
+      }
+    }
+  }
+
+  /**
+   * Centers the map on a given city
+   * @param {*} city A value in the 'City' variable.
+   * @param {bool} shouldZoom If set to true, the zoom level will be adjusted as well to
+   *                          make the whole city visible. Default is true.
+   */
+  focusOnCity(city, shouldZoom = true) {
+    /**
+     * Helper setter.
+     * @param {Configuration} instance current instance of the Configuration class (this). 
+     *                        It has to be passed as parameter because 'this' isn't available 
+     *                        inside the body of this function. (Or more precisely, it's not
+     *                        the 'this' we're looking for)
+     * @param {number} lat latitude of the view center
+     * @param {number} lng longitude of the view center
+     * @param {number} zoom zoom of the view (will only be set if shouldZoom === true)
+     */
+    function set(instance, lat, lng, zoom) {
+      instance.viewCenter = [lat, lng];
+      if(shouldZoom === true) 
+      instance.viewZoom = zoom;
+    }
+    // Switch to the correct city.
+    switch(city) {
+      default:
+        console.error("Can't center on city - unknown city");
+      case undefined:
+        console.error("Can't center on city - no city given (undefined)");
+        break;
+      case City.Gent:
+        set(this, 51.05364274168696, 3.7278842926025395, 14);
+        break;
+      case City.Brugge:
+        set(this, 51.20962577701306, 3.2314395904541016, 14);
+        break;
+      case City.Kortrijk:
+        set(this, 50.829360798981426, 3.2680034637451176, 14);
+        break;
+      case City.Antwerpen:
+        set(this, 51.2187121115024, 4.407062530517579, 13);
+        break;
+      case City.Brussel:
+        set(this, 50.84692264194612, 4.355821609497071, 14);
+        break;
+    }
   }
 }
 
@@ -112,9 +189,32 @@ function showMap(mapId, configuration) {
     configuration.overrideFromDivAttributes(div);
   }
 
-  let map = L.map('mapid').setView(configuration.viewCenter, configuration.viewZoom);
-  L.tileLayer(configuration.tileLayer, { attribution: configuration.tileLayerAttribution }).addTo(map);
+  let map = L.map('mapid');
+  updateMap(map, configuration);
   return map;
+}
+
+
+/**
+ * Updates a map using a configuration object.
+ * This will remove all map layers as well if "removeOldLayers" is set to true.
+ * @param {*} map the map
+ * @param {Configuration} configuration the configuration object
+ * @param {bool} removeOldLayers if set to true, old layers will be removed. Default is true.
+ */
+function updateMap(map, configuration, removeOldLayers = true) {
+  if(configuration === undefined) {
+    console.error("updateMap - no configuration given");
+    return;
+  }
+  if(map === undefined) {
+    console.error("updateMap - no map given");
+    return;
+  }
+  map.setView(configuration.viewCenter, configuration.viewZoom);
+  if(removeOldLayers === true)
+    map.layers = [];
+  L.tileLayer(configuration.tileLayer, { attribution: configuration.tileLayerAttribution }).addTo(map);
 }
 
 /**
@@ -124,20 +224,23 @@ function showMap(mapId, configuration) {
  * @param {string} query the query
  * @param {Configuration} configuration the configuration object. can be null.
  */
-function queryFeatures(map, query, configuration) {
+function queryAndShowFeatures(map, query, configuration) {
+  // Create a configuration object if we don't have one
   if (configuration == undefined)
     configuration = new Configuration();
-  // Send the query asynchronously
-  let xhttp = new XMLHttpRequest();
+
+  // Create the query URL for the OHM Overpass API.
   query = "http://overpass-api.openhistoricalmap.org/api/interpreter?data=".concat(query);
   query = encodeURI(query);
+  // Create the XMLHttpRequest to send the GET request asynchronously
+  let xhttp = new XMLHttpRequest();
   xhttp.open("GET", query);
-  // When it's ready, handle the results
+  // Set the callback
   xhttp.onreadystatechange = function () {
     // Only handle the result if the request has been completed
     if (this.readyState != 4)
       return;
-    // 200 = OK, Anything else is considered a failure.
+    // 200 = OK, anything else is considered a failure.
     if (this.status === 200)
       handleQueryResult(this.responseText, configuration);
     else
@@ -173,7 +276,7 @@ function queryFeatures(map, query, configuration) {
         L.marker(L.latLng(element.lat, element.lon)).addTo(map);
       if ((maxElements != undefined) && (elements.length > maxElements)) {
         let omitted = elements.length - maxElements;
-        console.warn("Capped the number of markers shown on screen, %o markers were not shown."
+        console.warn("Markers Cap Reached: %o markers were not shown."
           + " (Cap is %o and query returned %o features)", omitted, maxElements, elements.length);
       }
       else
