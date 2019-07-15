@@ -26,12 +26,12 @@ class Configuration {
    * The Center of the Map.
    * Default Parameter is roughly in the center of Belgium.
    */
-  viewCenter = [50.605902641613284, 4.752960205078125];
+  center = [50.605902641613284, 4.752960205078125];
   /**
    * The Zoom level of the map
    * Default parameter is 14.
    */
-  viewZoom = 14;
+  zoom = 14;
   /**
    * The TileLayer to use.
    * See https://leafletjs.com/reference-1.5.0.html#tilelayer for more information.
@@ -61,28 +61,28 @@ class Configuration {
       console.warn('Ill-formed attribute for %o: %o', attrName, value);
     }
 
-    // Overriding viewCenter
-    let hasSetViewCenter = false;
-    if (div.hasAttribute('viewCenter')) {
-      let value = div.getAttribute('viewCenter');
+    // Overriding center
+    let hasSetcenter = false;
+    if (div.hasAttribute('center')) {
+      let value = div.getAttribute('center');
       // Must be a string with 2 floating-point numbers, separated by a comma
       // and between brackets. e.g [3.14, 3.14]
       if (/^\[(\d+.\d+)\s?,\s?(\d+.\d+)\]$/.test(value)) {
-        this.viewCenter = JSON.parse(value);
-        hasSetViewCenter = true;
+        this.center = JSON.parse(value);
+        hasSetcenter = true;
       }
       else
-        warnIllFormedAttr('viewCenter', value);
+        warnIllFormedAttr('center', value);
     }
 
-    // Overriding viewZoom
-    if (div.hasAttribute('viewZoom')) {
-      let value = div.getAttribute('viewZoom');
+    // Overriding zoom
+    if (div.hasAttribute('zoom')) {
+      let value = div.getAttribute('zoom');
       // Must be a number, maybe a decimal one.
       if (/^\d+(.\d+)?$/.test(value))
-        this.viewZoom = parseInt(value);
+        this.zoom = parseInt(value);
       else
-        warnIllFormedAttr('viewZoom', value);
+        warnIllFormedAttr('zoom', value);
     }
 
     // Overriding tileLayer
@@ -157,7 +157,7 @@ function updateMap(map, conf, removeOldLayers = true) {
     console.error("updateMap - no map given");
     return;
   }
-  map.setView(conf.viewCenter, conf.viewZoom);
+  map.setView(conf.center, conf.zoom);
   if(removeOldLayers === true)
     map.layers = [];
   L.tileLayer(conf.tileLayer, { attribution: conf.tileLayerAttribution }).addTo(map);
