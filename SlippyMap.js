@@ -47,6 +47,18 @@ class Configuration {
    */
   boundsPadding = 0.2;
   /**
+   * The function that is called whenever we want to fetch the marker popup text
+   * for a given element.
+   * 
+   * This function is always called with the element object, which has an array
+   * of tags (element.tags) that you can use.
+   * 
+   * Return undefined if you don't want a popup
+   * 
+   * Popups support HTML.
+   */
+  popupTextProvider = defaultPopupTextProvider;
+  /**
    * Override this configuration object's member from a div's attribute.
    * The attributes must be named the same as the members, and they are checked
    * to see if the attribute's string is well-formed.
@@ -321,6 +333,27 @@ function queryAndShowFeatures(map, query, conf) {
   xhttp.send();
 
   /**
+   * Creates a single marker
+   * @param {*} element an element returned by the overpass query (object with a .lat and .lon field)
+   */
+  function createMarker(layerGroup, element) {
+    console.log('adding %o', element);
+    let marker = L.marker(L.latLng(element.lat, element.lon)).addTo(layerGroup);
+    // Fetch the popup text using the provider
+    let popupText = conf.popupTextProvider(element);
+    if(popupText == undefined)
+      return;
+    // If the provider has given us some text, create the popup.
+    marker.bindPopup(conf.popupTextProvider(element));
+    marker.on("mouseover", function() {
+      this.openPopup();
+    })
+    marker.on("mouseout", function() {
+      this.closePopup();
+    })
+  }
+
+  /**
   * Handles the result of a successful query to the Overpass API, adding the features as markers on the map.
   * @param {string} rawJSON the raw JSON string
   * @param {Configuration} configuration the configuration object. can be null.
@@ -353,7 +386,7 @@ function queryAndShowFeatures(map, query, conf) {
       let elements = json.elements;
       // Add the markers to the layerGroup
       for (let element of elements.slice(0, maxElements))
-        L.marker(L.latLng(element.lat, element.lon)).addTo(layerGroup);
+        createMarker(layerGroup, element);
       // Show some debug info, including a omitted markers count if we have omitted some
       // markers.
       if ((maxElements != undefined) && (elements.length > maxElements)) {
@@ -367,4 +400,41 @@ function queryAndShowFeatures(map, query, conf) {
     else
       console.log("queryAndShowFeatures - No elements found");
   }
+}
+
+function defaultPopupTextProvider(element) {
+  let tags = element.tags;
+  // Can't do anything without tags.
+  if(tags == undefined || tags.length == 0)
+    return;
+
+  let text = "";
+
+  if(tags.description != undefined)
+    text += tags.description + '<br>'
+  
+  // Try to parse an address if we got one
+  function getAddressLine() {
+    let city = tags["addr:city"];
+    let postcode = tags["addr:postcode"];
+    let housenumber = tags["addr:housenumber"];
+    let street = tags["addr:street"];
+
+    // Only display this if we got both a streetname and
+    // a housenumber.
+    if((housenumber != undefined) && (street != undefined)) {
+      let addressLine = "<br>";
+      addressLine += housenumber + ' ' + street + '<br>';
+      // If we got a city + postcode, display that as well.
+      if((postcode != undefined) && (city != undefined)) {
+        addressLine += postcode + ' ' + city;
+      }
+      return addressLine;
+    }
+    return "";
+  }
+
+  text += getAddressLine();
+
+  return text;
 }
