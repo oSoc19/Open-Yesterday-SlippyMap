@@ -48,7 +48,16 @@ class Configuration {
    * Set to undefined to remove the limit.
    */
   maxElements = 500;
-
+  /**
+   * The "padding" we should use for the bounds when showing the markers.
+   * This value is like a percentage, where 1 = 100% (and -1 = -100%).
+   * 
+   * This value shouldn't be too large, and, if possible, not negative.
+   * A value between 0.1 and 0.5 should be ideal for performance.
+   * 
+   * Ideally, don't change this value unless you know how it works.
+   */
+  boundsPadding = 0.2;
   /**
    * Override this configuration object's member from a div's attribute.
    * The attributes must be named the same as the members, and they are checked
@@ -135,6 +144,30 @@ function showMap(mapId, conf) {
   // If the div has a "focusOn" attribute, call focusOn on the div.
   if(div.hasAttribute('focusOn'))
     focusOn(map, div.getAttribute('focusOn'));
+
+  map.addEventListener('moveend', onMoveEnd);
+
+  // This is the function called whenever the user (or a programmer) is done moving the view.
+  // It performs some checks and may fire an additional "drawmarkers" event.
+  // the "drawmarkers" event is only called if:
+  //    - this is the first time moving the view
+  //    - the view has been moved outside the bounds of the "largest" previous view
+  function onMoveEnd() {
+    function fire(bounds) {
+      onMoveEnd.bounds = bounds;
+      map.fireEvent('drawmarkers'); 
+    };
+    
+    let curBounds = map.getBounds();
+
+    // If this is the first time calling the function, fire the event and save the bounds.
+    // If this isn't the first time and the new bounds are outside the old ones, 
+    // set them as the current bounds and fire the event.
+    // If both conditions are false, don't do anything.
+    if((onMoveEnd.bounds == undefined) || !onMoveEnd.bounds.contains(curBounds))
+        return fire(curBounds.pad(conf.boundsPadding));
+    return;
+  }
 
   return map;
 }
@@ -270,7 +303,7 @@ function queryAndShowFeatures(map, query, conf) {
   //    southwest_lng,southwest_lat,northeast_lng,northeast_lat
 
   // Create the bbox string
-  let bounds = map.getBounds();
+  let bounds = map.getBounds().pad(conf.boundsPadding);
   let sw = bounds.getSouthWest();
   let ne = bounds.getNorthEast();
   let bboxString = `${sw.lat},${sw.lng},${ne.lat},${ne.lng}`;
@@ -278,12 +311,11 @@ function queryAndShowFeatures(map, query, conf) {
   // Replace all occurences of {{bbox}} inside the query with 
   // the bbox string
   query = query.replace("{{bbox}}", bboxString);
-  console.log("Map Bounds: %o", bboxString);
 
-  // Create the query URL for the OHM Overpass API.
+  // Create the query URL for the OHM Overpass API & encode it
   let queryURL = "http://overpass-api.openhistoricalmap.org/api/interpreter?data=".concat(query);
-  console.log("query: " + query);
   queryURL = encodeURI(queryURL);
+
   // Create the XMLHttpRequest to send the GET request asynchronously
   let xhttp = new XMLHttpRequest();
   xhttp.open("GET", queryURL);
@@ -328,13 +360,13 @@ function queryAndShowFeatures(map, query, conf) {
         L.marker(L.latLng(element.lat, element.lon)).addTo(map);
       if ((maxElements != undefined) && (elements.length > maxElements)) {
         let omitted = elements.length - maxElements;
-        console.warn("Markers Cap Reached: %o markers were not shown."
+        console.warn("queryAndShowFeatures - Markers Cap Reached: %o markers were not shown."
           + " (Cap is %o and query returned %o features)", omitted, maxElements, elements.length);
       }
       else
-        console.log("Added %o elements", elements.length);
+        console.log("queryAndShowFeatures - Added %o elements", elements.length);
     }
     else
-      console.log("No elements found");
+      console.log("queryAndShowFeatures - No elements found");
   }
 }
