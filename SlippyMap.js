@@ -354,10 +354,20 @@ function queryAndShowFeatures(map, query, conf) {
     // Once that's done, gather the list of features. They're located in the "elements" part of the
     // JSON.
     if (json.elements != undefined) {
+      // Create a layer group for the markers if that's not done yet.
+      let layerGroup = queryAndShowFeatures.layerGroup;
+      if(layerGroup == undefined)
+        queryAndShowFeatures.layerGroup = layerGroup = L.layerGroup().addTo(map);
+      // If we already have a layergroup, clear it.
+      else 
+        layerGroup.clearLayers();
+      // Fetch the elements
       let elements = json.elements;
-      // Cap the number of elements shown for performance reasons.
+      // Add the markers to the layerGroup
       for (let element of elements.slice(0, maxElements))
-        L.marker(L.latLng(element.lat, element.lon)).addTo(map);
+        L.marker(L.latLng(element.lat, element.lon)).addTo(layerGroup);
+      // Show some debug info, including a omitted markers count if we have omitted some
+      // markers.
       if ((maxElements != undefined) && (elements.length > maxElements)) {
         let omitted = elements.length - maxElements;
         console.warn("queryAndShowFeatures - Markers Cap Reached: %o markers were not shown."
