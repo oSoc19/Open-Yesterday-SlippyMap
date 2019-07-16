@@ -466,8 +466,13 @@ function defaultPopupTextProvider(element) {
 
   let text = "";
 
+  // Print name
+  if(tags.name != undefined)
+    text += `<h2>${tags.name}</h2>`
+
+  // Print description
   if(tags.description != undefined)
-    text += tags.description + '<br>'
+    text += `<p>${tags.description}</p>`
   
   // Try to parse a start_date and end_date if we got one
   function getDateLine() {
@@ -475,7 +480,7 @@ function defaultPopupTextProvider(element) {
     let start_date = tags["start_date"];
     let end_date = tags["end_date"];
     if((start_date != undefined) && (end_date != undefined))
-      dateLine += '<br><b>From </b>' + start_date + ' <b>to</b> ' + end_date + '<br>';
+      dateLine += `<p><b>From</b> ${start_date} <b>to</b> ${end_date}</p>`;
     return dateLine;
   }
 
@@ -491,12 +496,13 @@ function defaultPopupTextProvider(element) {
     // Only display this if we got both a streetname and
     // a housenumber.
     if((housenumber != undefined) && (street != undefined)) {
-      let addressLine = "<br>";
+      let addressLine = "<p>";
       addressLine += housenumber + ' ' + street + '<br>';
       // If we got a city + postcode, display that as well.
       if((postcode != undefined) && (city != undefined)) {
         addressLine += postcode + ' ' + city;
       }
+      addressLine += '</p>';
       return addressLine;
     }
     return "";
