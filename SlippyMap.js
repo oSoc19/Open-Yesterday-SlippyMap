@@ -1,8 +1,8 @@
 /**
  * The Configuration of a map.
  * 
- * For the configuration to be applied, you must pass it to showMap or call updateMap manually.
- * The configuration is completely separate from the map instance.
+ * This is only used before calling "showMap". Any changes made to the configuration
+ * after the initial "showMap" will be ignored.
  */
 class Configuration {
   /**
@@ -17,12 +17,16 @@ class Configuration {
    * 
    * Default value is roughly in the center of Belgium.
    * 
+   * This value must always be defined.
+   * 
    * @type {number[]}
    */
   center = [50.605902641613284, 4.752960205078125];
   /**
    * The Zoom level of the map
    * Default value is 14.
+   * 
+   * This value must always be defined.
    * 
    * @type {number}
    */
@@ -167,16 +171,22 @@ function showMap(mapId, conf) {
     return;
   }
 
-  if (conf.canUseDivAttributes) {
+  if (conf.canUseDivAttributes)
     conf.useDivAttributes(div);
-  }
 
+  // Create the map and give it a tile layer.
   let map = L.map(mapId);
-  applyConfiguration(map, conf);
+  L.tileLayer(conf.tileLayer, { attribution: conf.tileLayerAttribution }).addTo(map);
 
-  // If the div has a "focusOn" attribute, call focusOn on the div.
+  // Set the zoom level
+  map.setZoom(conf.zoom);
+
+  // If the div has a "focusOn" attribute, call focusOn on the div to center the view.
+  // Else, center the view using the configuration parameters.
   if(div.hasAttribute('focusOn'))
-    focusOn(map, div.getAttribute('focusOn'));
+    focusOn(map, div.getAttribute('focusOn'), L.latLng(conf.center));
+  else
+    map.setCenter(conf.center);
 
   map.addEventListener('moveend', onMoveEnd);
 
@@ -206,46 +216,29 @@ function showMap(mapId, conf) {
 }
 
 /**
- * Applies a Configuration to a map object.
+ * Centers the map on something.
+ * This will perform a search using Nominatim, and center the map on the first result.
+ * If no result is found, the coordinates are unchanged.
  * 
- * @param {Leaflet.Map} map the target map
- * @param {Configuration} conf the configuration object
- * @param {boolean} removeOldLayers if set to true, the old layers of the map 
- *                                  will be removed. Default value is true.
+ * If the result of this function isn't satisfying, try to make a more specific query
+ * e.g. "Antwerpen Belgium", or simply set the coordinates manually.
+ * 
+ * The nominatim query will be performed using the following options:
+ *    - limit=1 
+ *    - viewbox=current bounds (map.getBounds().toBBoxString())
+ *    - format=json 
+ *    - q=query (the query string)
+ * 
+ * This function can be used even if the map has not been initialized yet.
+ * If that's the case, the parameter 'center' must be provided.
+ * 
+ * @param {Leaflet.Map} map the Leaflet map
+ * @param {string} query The nominatim query. Example "Antwerpen", "Brugge", etc.
+ * @param {Leaflet.LatLng|undefined} center The center of the search. Must be provided if 
+ * the map has not been initialized yet. If the map has been initialized, the bounds of
+ * its view will be used instead.
  */
-function applyConfiguration(map, conf, removeOldLayers = true) {
-  if(conf === undefined) {
-    console.error("updateMap - no configuration given");
-    return;
-  }
-  if(map === undefined) {
-    console.error("updateMap - no map given");
-    return;
-  }
-  map.setView(conf.center, conf.zoom);
-  if(removeOldLayers === true)
-    map.layers = [];
-  L.tileLayer(conf.tileLayer, { attribution: conf.tileLayerAttribution }).addTo(map);
-}
-
-
-  /**
-   * Centers the map on something.
-   * This will perform a search using Nominatim, and center the map on the first result.
-   * If no result is found, the coordinates are unchanged.
-   * 
-   * If the result of this function isn't satisfying, try to make a more specific query
-   * e.g. "Antwerpen Belgium", or simply set the coordinates manually.
-   * 
-   * The nominatim query will be performed using the following options:
-   *    - limit=1 
-   *    - viewbox=current bounds (map.getBounds().toBBoxString())
-   *    - format=json 
-   *    - q=query (the query string)
-   * @param {Leaflet.Map} map the Leaflet map
-   * @param {string} query The nominatim query. Example "Antwerpen", "Brugge", etc.
-   */
-function focusOn(map, query) {
+function focusOn(map, query, center) {
   map.stop();
   if(typeof query !== 'string') {
     console.error("Query is not a string");
@@ -260,8 +253,22 @@ function focusOn(map, query) {
     else
       console.error("focusOn - Nominatim query failed with code %o: %o", this.status, this.responseText);
   };
+
+  function getBounds() {
+    // Try to use the map bounds
+    try {
+      return map.getBounds().toBBoxString()
+    }
+    catch(err) {
+      if(center == undefined)
+        throw "focusOn - Map has not been initialized map and there's no center for the search";
+      // Create a 1Km bound box from the point.
+      return center.toBounds(1000).toBBoxString();
+    }
+  }
+
   // Prepare the query
-  let queryURL = `https://nominatim.openstreetmap.org/search?q=${query}&format=json&viewbox=${map.getBounds().toBBoxString()}&limit=1`;
+  let queryURL = `https://nominatim.openstreetmap.org/search?q=${query}&format=json&viewbox=${getBounds()}&limit=1`;
   // Send the request
   xhttp.open("GET", encodeURI(queryURL));
   xhttp.send();
@@ -380,7 +387,6 @@ function queryAndShowFeatures(map, query, conf) {
    * @param {*} element an element returned by the overpass query (object with a .lat and .lon field)
    */
   function createMarker(layerGroup, element) {
-    console.log('adding %o', element);
     let marker = L.marker(L.latLng(element.lat, element.lon)).addTo(layerGroup);
     // Fetch the popup text using the provider
     let popupText = conf.popupTextProvider(element);
