@@ -6,34 +6,49 @@
  */
 class Configuration {
   /**
-   * Set to true if we should override the configuration based on attributes
-   * in the map's div.
+   * Set to true if the HTML attributes of the map's div can be used to override
+   * the configuration.
+   * 
+   * @type {boolean}
    */
   canUseDivAttributes = true;
   /**
-   * The Center of the Map.
-   * Default Parameter is roughly in the center of Belgium.
+   * The Center of the Map. This should be an array containing 2 numbers.
+   * 
+   * Default value is roughly in the center of Belgium.
+   * 
+   * @type {number[]}
    */
   center = [50.605902641613284, 4.752960205078125];
   /**
    * The Zoom level of the map
-   * Default parameter is 14.
+   * Default value is 14.
+   * 
+   * @type {number}
    */
   zoom = 14;
   /**
    * The TileLayer to use.
    * See https://leafletjs.com/reference-1.5.0.html#tilelayer for more information.
+   * 
    * Default value is the OSM default map: https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+   * 
+   * @type {string}
    */
   tileLayer = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
   /**
    * The tileLayer's attribution text.
+   * 
    * Default value is the attribution for the OSM default map (see above).
+   * 
+   * @type {string}
    */
   tileLayerAttribution = '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
   /**
    * The maximum number of elements that can be shown on-screen
    * Set to undefined to remove the limit.
+   * 
+   * @type {number|undefined}
    */
   maxElements = 500;
   /**
@@ -44,8 +59,18 @@ class Configuration {
    * A value between 0.1 and 0.5 should be ideal for performance.
    * 
    * Ideally, don't change this value unless you know how it works.
+   * 
+   * @type {number}
    */
   boundsPadding = 0.2;
+  /**
+   * @name PopupTextProvider
+   * @function
+   * @param {object} element The element returned by the Overpass API.
+   * @param {object} element.tags The tags of the element. Look for tags by checking if
+   *                 element.tags['yourTag'] is undefined or not.
+   * @returns {string|undefined}
+   */
   /**
    * The function that is called whenever we want to fetch the marker popup text
    * for a given element.
@@ -56,13 +81,19 @@ class Configuration {
    * Return undefined if you don't want a popup
    * 
    * Popups support HTML.
+   * 
+   * @type {PopupTextProviderType}
    */
   popupTextProvider = defaultPopupTextProvider;
   /**
-   * Override this configuration object's member from a div's attribute.
-   * The attributes must be named the same as the members, and they are checked
-   * to see if the attribute's string is well-formed.
-   * @param {*} div the div object
+   * Overrides this configuration based on a div's attributes.
+   * 
+   * The attributes must have the same name as the members.
+   * 
+   * Attributes will be checked against a RegEx to see if they're well formed.
+   * If they aren't, they'll be ignored an a warning will be printed to the console.
+   * 
+   * @param {object} div the div object
    */
   useDivAttributes(div) {
     // Utils
@@ -114,15 +145,17 @@ class Configuration {
 }
 
 /**
- * Creates and displays a map in place of the div with id mapId
+ *
+ * Creates and displays a map in place of the div with id 'mapId'. 
+ * 
+ * If conf.canUseDivAttributes is set to true, this will call conf.useDivAttributes to update the configuration 
+ * based on the attributes of the div (when present)
+ * 
  * @param {string} mapId The HTML id of the div that should become the map
  * @param {Configuration} conf the Configuration object. 
  *                        Can be undefined. If that's the case, a default-constructed object will be used.
  *                        However, if you want to reuse the configuration object later, it's better to pass one.
- *  
- * If conf.canUseDivAttributes is set to true, this will call 
- * conf.useDivAttributes to update the configuration based on the attributes
- * of the div.
+ * @returns {Leaflet.Map} The created Leaflet Map.
  */
 function showMap(mapId, conf) {
   if (conf == undefined)
@@ -173,14 +206,14 @@ function showMap(mapId, conf) {
 }
 
 /**
- * Updates a map using a configuration object.
+ * Applies a Configuration to a map object.
  * 
- * @param {Leaflet.Map} map the map
+ * @param {Leaflet.Map} map the target map
  * @param {Configuration} conf the configuration object
  * @param {boolean} removeOldLayers if set to true, the old layers of the map 
- *                                  will be removed. Default is true.
+ *                                  will be removed. Default value is true.
  */
-function updateMap(map, conf, removeOldLayers = true) {
+function applyConfiguration(map, conf, removeOldLayers = true) {
   if(conf === undefined) {
     console.error("updateMap - no configuration given");
     return;
@@ -201,6 +234,9 @@ function updateMap(map, conf, removeOldLayers = true) {
    * This will perform a search using Nominatim, and center the map on the first result.
    * If no result is found, the coordinates are unchanged.
    * 
+   * If the result of this function isn't satisfying, try to make a more specific query
+   * e.g. "Antwerpen Belgium", or simply set the coordinates manually.
+   * 
    * The nominatim query will be performed using the following options:
    *    - limit=1 
    *    - viewbox=current bounds (map.getBounds().toBBoxString())
@@ -208,9 +244,6 @@ function updateMap(map, conf, removeOldLayers = true) {
    *    - q=query (the query string)
    * @param {Leaflet.Map} map the Leaflet map
    * @param {string} query The nominatim query. Example "Antwerpen", "Brugge", etc.
-   * 
-   * If the result of this function isn't satisfying, try to make a more specific query
-   * e.g. "Antwerpen Belgium", or simply set the coordinates manually.
    */
 function focusOn(map, query) {
   if(typeof query !== 'string') {
@@ -256,11 +289,15 @@ function focusOn(map, query) {
 }
 
 /**
- * Returns a simple overpass query that returns all node, ways and relations
- * in the bbox that have a key/value.
- * If key is undefined, all points will be returned.
- * @param {*} key 
- * @param {*} value 
+ * Returns a simple overpass query string that returns all nodes, ways and relations
+ * in the bbox that have a given key/value pair.
+ * 
+ * If key is undefined, all points will be returned. 
+ * (Please be careful with that, if it's a large bbox performance will be terrible)
+ * 
+ * @param {string|undefined} key The key we're looking for
+ * @param {string|undefined} value The value of the key we're looking for.
+ * @returns {string} the query string
  */
 function getSimpleQuery(key, value) {
   function getParam() {
@@ -284,12 +321,17 @@ function getSimpleQuery(key, value) {
 
 /**
  * Queries the Overpass API and adds the returned points on the map.
- * This is asynchronous, and the points will be added once the query is completed.
+ * This is asynchronous, and the points will be added once the query is completed. 
+ * 
+ * Errors will be printed to the console in case the query fails. 
+ * 
+ * A warning will be printed to the console if some points are ignored due to the cap.
+ * 
  * @param {Leaflet.Map} map the map
  * @param {string} query the query. For generating simple queries, @see getSimpleQuery
  *                 Note: occurences of {{bbox}} inside the query will be replaced with the bounds
  *                 of the map.
- * @param {Configuration} conf the configuration object. can be null.
+ * @param {Configuration|undefined} conf the configuration object. Can be undefined to use the default configuration.
  */
 function queryAndShowFeatures(map, query, conf) {
   // Create a configuration object if we don't have one
@@ -356,9 +398,8 @@ function queryAndShowFeatures(map, query, conf) {
   /**
   * Handles the result of a successful query to the Overpass API, adding the features as markers on the map.
   * @param {string} rawJSON the raw JSON string
-  * @param {Configuration} configuration the configuration object. can be null.
   */
-  function handleQueryResult(rawJSON, configuration) {
+  function handleQueryResult(rawJSON) {
     // First, parse the raw json.
     let json;
     try {
@@ -402,11 +443,19 @@ function queryAndShowFeatures(map, query, conf) {
   }
 }
 
+/**
+ * The default popup text provider, which tries its best to provide a description
+ * (in English) based on the tags of the element.
+ * 
+ * @param {object} element The element returned by the Overpass API.
+ * @param {object} element.tags The tags of the element
+ * @returns {string|undefined}
+ */
 function defaultPopupTextProvider(element) {
   let tags = element.tags;
   // Can't do anything without tags.
   if(tags == undefined || tags.length == 0)
-    return;
+    return undefined;
 
   let text = "";
 
