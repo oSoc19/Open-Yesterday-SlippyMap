@@ -1,0 +1,10 @@
+{
+  "opts": {
+      "encoding": "utf8",
+      "destination": "./docs/jsdoc",
+      "recurse": true
+  },
+  "source": {
+    "include": ["SlippyMap.js", "docs/Home.md"]
+  }
+}
