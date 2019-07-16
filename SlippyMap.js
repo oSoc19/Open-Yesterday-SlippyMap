@@ -413,6 +413,18 @@ function defaultPopupTextProvider(element) {
   if(tags.description != undefined)
     text += tags.description + '<br>'
   
+  // Try to parse a start_date and end_date if we got one
+  function getDateLine() {
+    let dateLine = "";
+    let start_date = tags["start_date"];
+    let end_date = tags["end_date"];
+    if((start_date != undefined) && (end_date != undefined))
+      dateLine += '<br><b>From </b>' + start_date + ' <b>to</b> ' + end_date + '<br>';
+    return dateLine;
+  }
+
+  text += getDateLine();
+
   // Try to parse an address if we got one
   function getAddressLine() {
     let city = tags["addr:city"];
