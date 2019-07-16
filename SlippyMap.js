@@ -50,7 +50,7 @@ class Configuration {
   tileLayerAttribution = '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
   /**
    * The maximum number of elements that can be shown on-screen
-   * Set to undefined to remove the limit.
+   * Set to undefined, or a number less or equal to zero to remove the limit.
    * 
    * @type {number|undefined}
    */
@@ -318,8 +318,8 @@ function getSimpleQuery(key, value) {
   [out:json][timeout:25];
   // gather results
   (
-    nwr${getParam()}({{bbox}});
-   );
+    node${getParam()}({{bbox}});
+  );
   // print results
   out body;
   >;
@@ -420,6 +420,8 @@ function queryAndShowFeatures(map, query, conf) {
     }
 
     let maxElements = conf.maxElements;
+    if(maxElements <= 0)
+      maxElements = undefined;
     // Once that's done, gather the list of features. They're located in the "elements" part of the
     // JSON.
     if (json.elements != undefined) {
