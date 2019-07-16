@@ -172,7 +172,7 @@ function showMap(mapId, conf) {
   }
 
   let map = L.map(mapId);
-  updateMap(map, conf);
+  applyConfiguration(map, conf);
 
   // If the div has a "focusOn" attribute, call focusOn on the div.
   if(div.hasAttribute('focusOn'))
@@ -246,6 +246,7 @@ function applyConfiguration(map, conf, removeOldLayers = true) {
    * @param {string} query The nominatim query. Example "Antwerpen", "Brugge", etc.
    */
 function focusOn(map, query) {
+  map.stop();
   if(typeof query !== 'string') {
     console.error("Query is not a string");
     return;
