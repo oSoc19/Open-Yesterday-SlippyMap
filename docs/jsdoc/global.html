@@ -104,205 +104,6 @@
     
 
     
-    <h4 class="name" id="applyConfiguration"><span class="type-signature"></span>applyConfiguration<span class="signature">(map, conf, removeOldLayers)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Applies a Configuration to a map object.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>map</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Leaflet.Map</span>
-
-
-            
-            </td>
-
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last">the target map</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>conf</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Configuration.html">Configuration</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last">the configuration object</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>removeOldLayers</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-                <td class="default">
-                
-                    true
-                
-                </td>
-            
-
-            <td class="description last">if set to true, the old layers of the map                                  will be removed. Default value is true.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line216">line 216</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
     <h4 class="name" id="defaultPopupTextProvider"><span class="type-signature"></span>defaultPopupTextProvider<span class="signature">(element)</span><span class="type-signature"> &rarr; {string|undefined}</span></h4>
     
 
@@ -453,7 +254,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line454">line 454</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line461">line 461</a>
     </li></ul></dd>
     
 
@@ -510,7 +311,7 @@
     
 
     
-    <h4 class="name" id="focusOn"><span class="type-signature"></span>focusOn<span class="signature">(map, query)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="focusOn"><span class="type-signature"></span>focusOn<span class="signature">(map, query, center)</span><span class="type-signature"></span></h4>
     
 
     
@@ -518,7 +319,7 @@
 
 
 <div class="description">
-    Centers the map on something.This will perform a search using Nominatim, and center the map on the first result.If no result is found, the coordinates are unchanged.If the result of this function isn't satisfying, try to make a more specific querye.g. "Antwerpen Belgium", or simply set the coordinates manually.The nominatim query will be performed using the following options:   - limit=1    - viewbox=current bounds (map.getBounds().toBBoxString())   - format=json    - q=query (the query string)
+    Centers the map on something.This will perform a search using Nominatim, and center the map on the first result.If no result is found, the coordinates are unchanged.If the result of this function isn't satisfying, try to make a more specific querye.g. "Antwerpen Belgium", or simply set the coordinates manually.The nominatim query will be performed using the following options:   - limit=1    - viewbox=current bounds (map.getBounds().toBBoxString())   - format=json    - q=query (the query string)This function can be used even if the map has not been initialized yet.If that's the case, the parameter 'center' must be provided.
 </div>
 
 
@@ -597,6 +398,32 @@
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>center</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Leaflet.LatLng</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The center of the search. Must be provided if the map has not been initialized yet. If the map has been initialized, the bounds ofits view will be used instead.</td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -634,7 +461,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line248">line 248</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line241">line 241</a>
     </li></ul></dd>
     
 
@@ -800,7 +627,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line302">line 302</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line310">line 310</a>
     </li></ul></dd>
     
 
@@ -1004,7 +831,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line66">line 66</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line70">line 70</a>
     </li></ul></dd>
     
 
@@ -1211,7 +1038,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line336">line 336</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line344">line 344</a>
     </li></ul></dd>
     
 
@@ -1371,7 +1198,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line160">line 160</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line164">line 164</a>
     </li></ul></dd>
     
 
@@ -1439,13 +1266,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Configuration.html">Configuration</a></li></ul><h3>Global</h3><ul><li><a href="global.html#applyConfiguration">applyConfiguration</a></li><li><a href="global.html#defaultPopupTextProvider">defaultPopupTextProvider</a></li><li><a href="global.html#focusOn">focusOn</a></li><li><a href="global.html#getSimpleQuery">getSimpleQuery</a></li><li><a href="global.html#PopupTextProvider">PopupTextProvider</a></li><li><a href="global.html#queryAndShowFeatures">queryAndShowFeatures</a></li><li><a href="global.html#showMap">showMap</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Configuration.html">Configuration</a></li></ul><h3>Global</h3><ul><li><a href="global.html#defaultPopupTextProvider">defaultPopupTextProvider</a></li><li><a href="global.html#focusOn">focusOn</a></li><li><a href="global.html#getSimpleQuery">getSimpleQuery</a></li><li><a href="global.html#PopupTextProvider">PopupTextProvider</a></li><li><a href="global.html#queryAndShowFeatures">queryAndShowFeatures</a></li><li><a href="global.html#showMap">showMap</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jul 16 2019 09:42:17 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jul 16 2019 10:38:31 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
