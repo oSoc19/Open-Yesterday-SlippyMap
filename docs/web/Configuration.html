@@ -30,7 +30,7 @@
     
         <h2><span class="attribs"><span class="type-signature"></span></span>Configuration<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">The Configuration of a map.This is only used before calling "showMap". Any changes made to the configurationafter the initial "showMap" will be ignored.</div>
+            <div class="class-description">The Configuration of a map.<br>This is only used before calling "showMap". Any changes made to the configurationafter the initial "showMap" will be ignored.</div>
         
     
 </header>
@@ -149,7 +149,7 @@
 
 
 <div class="description">
-    The "padding" we should use for the bounds when showing the markers.This value is like a percentage, where 1 = 100% (and -1 = -100%).This value shouldn't be too large, and, if possible, not negative.A value between 0.1 and 0.5 should be ideal for performance.Ideally, don't change this value unless you know how it works.
+    The "padding" we should use for the bounds when showing the markers.This value is a percentage, where 1 = 100%, 0 = 0%, and -1 = -100%.<br>This value shouldn't be too large, and should be positive.A value between 0.2 and 0.5 is probably ideal for performance.Larger values will reduce performance in the common case, and valuestoo small (<0.2) will reduce performance for users that move the maparound a lot.<br>Default value is 0.25
 </div>
 
 
@@ -197,7 +197,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line69">line 69</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line72">line 72</a>
     </li></ul></dd>
     
 
@@ -293,7 +293,7 @@
 
 
 <div class="description">
-    The Center of the Map. This should be an array containing 2 numbers.Default value is roughly in the center of Belgium.This value must always be defined.
+    The Center of the Map. This should be an array containing 2 numbers.<br>Default value is roughly in the center of Belgium.
 </div>
 
 
@@ -341,7 +341,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line24">line 24</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line22">line 22</a>
     </li></ul></dd>
     
 
@@ -365,7 +365,7 @@
 
 
 <div class="description">
-    The maximum number of elements that can be shown on-screenSet to undefined to remove the limit.
+    The maximum number of elements that can be shown on-screenSet to undefined, or a number less or equal to zero to remove the limit.<br>Default value is 500
 </div>
 
 
@@ -440,7 +440,7 @@
 
 
 <div class="description">
-    The function that is called whenever we want to fetch the marker popup textfor a given element.This function is always called with the element object, which has an arrayof tags (element.tags) that you can use.Return undefined if you don't want a popupPopups support HTML.
+    The function that is called whenever we want to fetch the marker popup textfor a given element.<br>This function is always called with the element object, which has an arrayof tags (element.tags) that you can use.<br>Return undefined if you don't want a popup<br>Popups support HTML.
 </div>
 
 
@@ -488,7 +488,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line91">line 91</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line94">line 94</a>
     </li></ul></dd>
     
 
@@ -512,7 +512,7 @@
 
 
 <div class="description">
-    The TileLayer to use.See https://leafletjs.com/reference-1.5.0.html#tilelayer for more information.Default value is the OSM default map: https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+    The TileLayer to use.<br>See https://leafletjs.com/reference-1.5.0.html#tilelayer for more information.<br>Default value is the OSM default map: https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
 </div>
 
 
@@ -560,7 +560,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line42">line 42</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line40">line 40</a>
     </li></ul></dd>
     
 
@@ -584,7 +584,7 @@
 
 
 <div class="description">
-    The tileLayer's attribution text.Default value is the attribution for the OSM default map (see above).
+    The tileLayer's attribution text.<br>Default value is the attribution for the OSM default map (see above).
 </div>
 
 
@@ -632,7 +632,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line50">line 50</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line48">line 48</a>
     </li></ul></dd>
     
 
@@ -656,7 +656,7 @@
 
 
 <div class="description">
-    The Zoom level of the mapDefault value is 14.This value must always be defined.
+    The Zoom level of the map.<br>Default value is 14.
 </div>
 
 
@@ -704,7 +704,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line33">line 33</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line30">line 30</a>
     </li></ul></dd>
     
 
@@ -740,7 +740,7 @@
 
 
 <div class="description">
-    Overrides this configuration based on a div's attributes.The attributes must have the same name as the members.Attributes will be checked against a RegEx to see if they're well formed.If they aren't, they'll be ignored an a warning will be printed to the console.
+    Overrides this configuration based on a div's attributes.<br>The attributes must have the same name as the members.<br>Attributes will be checked against a RegEx to see if they're well formed.If they aren't, they'll be ignored an a warning will be printed to the console.
 </div>
 
 
@@ -833,7 +833,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line102">line 102</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line105">line 105</a>
     </li></ul></dd>
     
 
@@ -885,7 +885,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jul 16 2019 13:05:57 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jul 17 2019 09:41:30 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

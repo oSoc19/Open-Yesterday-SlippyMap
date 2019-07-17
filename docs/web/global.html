@@ -254,7 +254,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line461">line 461</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line484">line 484</a>
     </li></ul></dd>
     
 
@@ -319,7 +319,7 @@
 
 
 <div class="description">
-    Centers the map on something.This will perform a search using Nominatim, and center the map on the first result.If no result is found, the coordinates are unchanged.If the result of this function isn't satisfying, try to make a more specific querye.g. "Antwerpen Belgium", or simply set the coordinates manually.The nominatim query will be performed using the following options:   - limit=1    - viewbox=current bounds (map.getBounds().toBBoxString())   - format=json    - q=query (the query string)This function can be used even if the map has not been initialized yet.If that's the case, the parameter 'center' must be provided.
+    Centers the map on something.<br>This will perform a search using Nominatim, and center the map on the first result.If no result is found, the coordinates are unchanged.<br>If the result of this function isn't satisfying, try to make a more specific querye.g. "Antwerpen Belgium", or simply set the coordinates manually.<br>The nominatim query will be performed using the following options:<ul>   <li> limit=1    <li> viewbox=current bounds (map.getBounds().toBBoxString())   <li> format=json    <li> q=query (the query string)</ul><br>This function can be used even if the map has not been initialized yet.If that's the case, the parameter 'center' must be provided.<br>If you use this on the map returned by showMap, it has already be initializedso the center parameter is useless and can be omitted.
 </div>
 
 
@@ -461,7 +461,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line241">line 241</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line260">line 260</a>
     </li></ul></dd>
     
 
@@ -505,7 +505,7 @@
 
 
 <div class="description">
-    Returns a simple overpass query string that returns all nodes, ways and relationsin the bbox that have a given key/value pair.If key is undefined, all points will be returned. (Please be careful with that, if it's a large bbox performance will be terrible)
+    Returns a simple overpass query string that returns all nodes, ways and relationsin the bbox that have a given key/value pair.<br>If key is undefined, all points will be returned. (Please be careful with the latter, if it's a large bbox, performance will be terrible, especiallyif you don't cap the number of features shown on screen)
 </div>
 
 
@@ -627,7 +627,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line310">line 310</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line330">line 330</a>
     </li></ul></dd>
     
 
@@ -831,7 +831,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line70">line 70</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line73">line 73</a>
     </li></ul></dd>
     
 
@@ -896,7 +896,7 @@
 
 
 <div class="description">
-    Queries the Overpass API and adds the returned points on the map.This is asynchronous, and the points will be added once the query is completed. Errors will be printed to the console in case the query fails. A warning will be printed to the console if some points are ignored due to the cap.
+    Queries the Overpass API and adds the resulting features to the map.This is asynchronous, the points will be added as soon as the API gives us a response.<br>Errors will be printed to the console if the query fails. <br>A warning will be printed to the console if some points are ignored due to the cap.(see Configuration.maxElements)
 </div>
 
 
@@ -1038,7 +1038,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line344">line 344</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line365">line 365</a>
     </li></ul></dd>
     
 
@@ -1074,7 +1074,7 @@
     
 
     
-    <h4 class="name" id="showMap"><span class="type-signature"></span>showMap<span class="signature">(mapId, conf)</span><span class="type-signature"> &rarr; {Leaflet.Map}</span></h4>
+    <h4 class="name" id="showMap"><span class="type-signature"></span>showMap<span class="signature">(mapId, conf, focusQuery)</span><span class="type-signature"> &rarr; {Leaflet.Map}</span></h4>
     
 
     
@@ -1082,7 +1082,7 @@
 
 
 <div class="description">
-    Creates and displays a map in place of the div with id 'mapId'. If conf.canUseDivAttributes is set to true, this will call conf.useDivAttributes to update the configuration based on the attributes of the div (when present)
+    Creates and displays a map in place of the div with id mapId. <br>If conf.canUseDivAttributes is set to true, this will call conf.useDivAttributes to update the configuration based on the attributes of the div (when present)
 </div>
 
 
@@ -1161,6 +1161,32 @@
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>focusQuery</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">If defined, calls focusOn to initialize the map using the focusQuery.                          Note that if this parameter is used, the focusOn attribute of the div will be ignored.</td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1198,7 +1224,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line164">line 164</a>
+        <a href="SlippyMap.js.html">SlippyMap.js</a>, <a href="SlippyMap.js.html#line169">line 169</a>
     </li></ul></dd>
     
 
@@ -1272,7 +1298,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jul 16 2019 13:05:57 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jul 17 2019 09:41:30 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

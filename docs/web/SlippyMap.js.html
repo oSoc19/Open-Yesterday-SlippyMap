@@ -28,7 +28,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>/**
  * The Configuration of a map.
- * 
+ * &lt;br>
  * This is only used before calling "showMap". Any changes made to the configuration
  * after the initial "showMap" will be ignored.
  */
@@ -42,27 +42,25 @@ class Configuration {
   canUseDivAttributes = true;
   /**
    * The Center of the Map. This should be an array containing 2 numbers.
-   * 
+   * &lt;br>
    * Default value is roughly in the center of Belgium.
-   * 
-   * This value must always be defined.
    * 
    * @type {number[]}
    */
   center = [50.605902641613284, 4.752960205078125];
   /**
-   * The Zoom level of the map
+   * The Zoom level of the map.
+   * &lt;br>
    * Default value is 14.
-   * 
-   * This value must always be defined.
    * 
    * @type {number}
    */
   zoom = 14;
   /**
    * The TileLayer to use.
+   * &lt;br>
    * See https://leafletjs.com/reference-1.5.0.html#tilelayer for more information.
-   * 
+   * &lt;br>
    * Default value is the OSM default map: https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
    * 
    * @type {string}
@@ -70,7 +68,7 @@ class Configuration {
   tileLayer = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
   /**
    * The tileLayer's attribution text.
-   * 
+   * &lt;br>
    * Default value is the attribution for the OSM default map (see above).
    * 
    * @type {string}
@@ -78,23 +76,28 @@ class Configuration {
   tileLayerAttribution = '&lt;a href="https://www.openstreetmap.org/copyright">OpenStreetMap&lt;/a> contributors';
   /**
    * The maximum number of elements that can be shown on-screen
-   * Set to undefined to remove the limit.
+   * Set to undefined, or a number less or equal to zero to remove the limit.
+   * &lt;br>
+   * Default value is 500
    * 
    * @type {number|undefined}
    */
   maxElements = 500;
   /**
    * The "padding" we should use for the bounds when showing the markers.
-   * This value is like a percentage, where 1 = 100% (and -1 = -100%).
-   * 
-   * This value shouldn't be too large, and, if possible, not negative.
-   * A value between 0.1 and 0.5 should be ideal for performance.
-   * 
-   * Ideally, don't change this value unless you know how it works.
+   * This value is a percentage, where 1 = 100%, 0 = 0%, and -1 = -100%.
+   * &lt;br>
+   * This value shouldn't be too large, and should be positive.
+   * A value between 0.2 and 0.5 is probably ideal for performance.
+   * Larger values will reduce performance in the common case, and values
+   * too small (&lt;0.2) will reduce performance for users that move the map
+   * around a lot.
+   * &lt;br>
+   * Default value is 0.25
    * 
    * @type {number}
    */
-  boundsPadding = 0.2;
+  boundsPadding = 0.25;
   /**
    * @name PopupTextProvider
    * @function
@@ -106,12 +109,12 @@ class Configuration {
   /**
    * The function that is called whenever we want to fetch the marker popup text
    * for a given element.
-   * 
+   * &lt;br>
    * This function is always called with the element object, which has an array
    * of tags (element.tags) that you can use.
-   * 
+   * &lt;br>
    * Return undefined if you don't want a popup
-   * 
+   * &lt;br>
    * Popups support HTML.
    * 
    * @type {PopupTextProviderType}
@@ -119,9 +122,9 @@ class Configuration {
   popupTextProvider = defaultPopupTextProvider;
   /**
    * Overrides this configuration based on a div's attributes.
-   * 
+   * &lt;br>
    * The attributes must have the same name as the members.
-   * 
+   * &lt;br>
    * Attributes will be checked against a RegEx to see if they're well formed.
    * If they aren't, they'll be ignored an a warning will be printed to the console.
    * 
@@ -178,8 +181,8 @@ class Configuration {
 
 /**
  *
- * Creates and displays a map in place of the div with id 'mapId'. 
- * 
+ * Creates and displays a map in place of the div with id mapId. 
+ * &lt;br>
  * If conf.canUseDivAttributes is set to true, this will call conf.useDivAttributes to update the configuration 
  * based on the attributes of the div (when present)
  * 
@@ -187,9 +190,11 @@ class Configuration {
  * @param {Configuration} conf the Configuration object. 
  *                        Can be undefined. If that's the case, a default-constructed object will be used.
  *                        However, if you want to reuse the configuration object later, it's better to pass one.
+ * @param {string|undefined} focusQuery If defined, calls focusOn to initialize the map using the focusQuery.
+ *                           Note that if this parameter is used, the focusOn attribute of the div will be ignored.
  * @returns {Leaflet.Map} The created Leaflet Map.
  */
-function showMap(mapId, conf) {
+function showMap(mapId, conf, focusQuery) {
   if (conf == undefined)
     conf = new Configuration();
 
@@ -209,10 +214,18 @@ function showMap(mapId, conf) {
   // Set the zoom level
   map.setZoom(conf.zoom);
 
-  // If the div has a "focusOn" attribute, call focusOn on the div to center the view.
+  // Handle the focusOn attribute.
+  if(div.hasAttribute('focusOn')) {
+    if(focusQuery == undefined)
+      focusQuery = div.getAttribute('focusOn');
+    else
+      console.warn("showMap - focusOn attribute of the map div overriden by the focusQuery parameter");
+  }
+
+  // If we got a focusQuery, use focusOn to initialize the map's position.
   // Else, center the view using the configuration parameters.
-  if(div.hasAttribute('focusOn'))
-    focusOn(map, div.getAttribute('focusOn'), L.latLng(conf.center));
+  if(focusQuery != undefined)
+    focusOn(map, focusQuery, L.latLng(conf.center));
   else
     map.setCenter(conf.center);
 
@@ -245,20 +258,26 @@ function showMap(mapId, conf) {
 
 /**
  * Centers the map on something.
+ * &lt;br>
  * This will perform a search using Nominatim, and center the map on the first result.
  * If no result is found, the coordinates are unchanged.
- * 
+ * &lt;br>
  * If the result of this function isn't satisfying, try to make a more specific query
  * e.g. "Antwerpen Belgium", or simply set the coordinates manually.
- * 
+ * &lt;br>
  * The nominatim query will be performed using the following options:
- *    - limit=1 
- *    - viewbox=current bounds (map.getBounds().toBBoxString())
- *    - format=json 
- *    - q=query (the query string)
- * 
+ * &lt;ul>
+ *    &lt;li> limit=1 
+ *    &lt;li> viewbox=current bounds (map.getBounds().toBBoxString())
+ *    &lt;li> format=json 
+ *    &lt;li> q=query (the query string)
+ * &lt;/ul>
+ * &lt;br>
  * This function can be used even if the map has not been initialized yet.
  * If that's the case, the parameter 'center' must be provided.
+ * &lt;br>
+ * If you use this on the map returned by showMap, it has already be initialized
+ * so the center parameter is useless and can be omitted.
  * 
  * @param {Leaflet.Map} map the Leaflet map
  * @param {string} query The nominatim query. Example "Antwerpen", "Brugge", etc.
@@ -327,9 +346,10 @@ function focusOn(map, query, center) {
 /**
  * Returns a simple overpass query string that returns all nodes, ways and relations
  * in the bbox that have a given key/value pair.
- * 
+ * &lt;br>
  * If key is undefined, all points will be returned. 
- * (Please be careful with that, if it's a large bbox performance will be terrible)
+ * (Please be careful with the latter, if it's a large bbox, performance will be terrible, especially
+ * if you don't cap the number of features shown on screen)
  * 
  * @param {string|undefined} key The key we're looking for
  * @param {string|undefined} value The value of the key we're looking for.
@@ -346,8 +366,8 @@ function getSimpleQuery(key, value) {
   [out:json][timeout:25];
   // gather results
   (
-    nwr${getParam()}({{bbox}});
-   );
+    node${getParam()}({{bbox}});
+  );
   // print results
   out body;
   >;
@@ -356,12 +376,13 @@ function getSimpleQuery(key, value) {
 }
 
 /**
- * Queries the Overpass API and adds the returned points on the map.
- * This is asynchronous, and the points will be added once the query is completed. 
- * 
- * Errors will be printed to the console in case the query fails. 
- * 
+ * Queries the Overpass API and adds the resulting features to the map.
+ * This is asynchronous, the points will be added as soon as the API gives us a response.
+ * &lt;br>
+ * Errors will be printed to the console if the query fails. 
+ * &lt;br>
  * A warning will be printed to the console if some points are ignored due to the cap.
+ * (see Configuration.maxElements)
  * 
  * @param {Leaflet.Map} map the map
  * @param {string} query the query. For generating simple queries, @see getSimpleQuery
@@ -371,8 +392,8 @@ function getSimpleQuery(key, value) {
  */
 function queryAndShowFeatures(map, query, conf) {
   // Create a configuration object if we don't have one
-  if (configuration == undefined)
-    configuration = new Configuration();
+  if (conf == undefined)
+    conf = new Configuration();
 
   // Note: We cannot use map.getBounds().toBBoxString() because
   // for some reason overpass wants another format which is 
@@ -448,6 +469,8 @@ function queryAndShowFeatures(map, query, conf) {
     }
 
     let maxElements = conf.maxElements;
+    if(maxElements &lt;= 0)
+      maxElements = undefined;
     // Once that's done, gather the list of features. They're located in the "elements" part of the
     // JSON.
     if (json.elements != undefined) {
@@ -494,8 +517,13 @@ function defaultPopupTextProvider(element) {
 
   let text = "";
 
+  // Print name
+  if(tags.name != undefined)
+    text += `&lt;h2>${tags.name}&lt;/h2>`
+
+  // Print description
   if(tags.description != undefined)
-    text += tags.description + '&lt;br>'
+    text += `&lt;p>${tags.description}&lt;/p>`
   
   // Try to parse a start_date and end_date if we got one
   function getDateLine() {
@@ -503,7 +531,7 @@ function defaultPopupTextProvider(element) {
     let start_date = tags["start_date"];
     let end_date = tags["end_date"];
     if((start_date != undefined) &amp;&amp; (end_date != undefined))
-      dateLine += '&lt;br>&lt;b>From &lt;/b>' + start_date + ' &lt;b>to&lt;/b> ' + end_date + '&lt;br>';
+      dateLine += `&lt;p>&lt;b>From&lt;/b> ${start_date} &lt;b>to&lt;/b> ${end_date}&lt;/p>`;
     return dateLine;
   }
 
@@ -519,12 +547,13 @@ function defaultPopupTextProvider(element) {
     // Only display this if we got both a streetname and
     // a housenumber.
     if((housenumber != undefined) &amp;&amp; (street != undefined)) {
-      let addressLine = "&lt;br>";
+      let addressLine = "&lt;p>";
       addressLine += housenumber + ' ' + street + '&lt;br>';
       // If we got a city + postcode, display that as well.
       if((postcode != undefined) &amp;&amp; (city != undefined)) {
         addressLine += postcode + ' ' + city;
       }
+      addressLine += '&lt;/p>';
       return addressLine;
     }
     return "";
@@ -549,7 +578,7 @@ function defaultPopupTextProvider(element) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Jul 16 2019 13:05:57 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jul 17 2019 09:41:30 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
