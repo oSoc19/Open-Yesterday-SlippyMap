@@ -55,24 +55,24 @@ Order matters, so don't change it.</p>
 &lt;script src=&quot;https://osoc19.github.io/Open-Yesterday-SlippyMap/SlippyMap.js&quot;>&lt;/script>
 </code></pre>
 <h2>Adding a map</h2>
-<p>To add the map, create a new div where you want the map to be.
-The map height's and width will depend on the div's styling, so style the div as you want. Give this div a unique id, for instance &quot;slippy-map&quot;.</p>
+<p>To display a map, create a new div and give it a unique <code>id</code>, like <code>id=&quot;slippy-map&quot;</code>.
+The map's height and width will depend on the div's, so style the div with the desired <code>height</code> and <code>width</code>.</p>
 <p><code>&lt;div id=&quot;slippy-map&quot; style=&quot;height:800px&quot; &gt;&lt;/div&gt;</code></p>
-<p>Once that's done, you can call <code>showMap</code> to actually show the map.
-<code>showMap</code> takes 2 argument, one mandatory and one optional.</p>
+<p>The last step is to call <code>showMap</code> to display the map.
+<code>showMap</code> takes 2 argument, the first one is mandatory and the second one is optional.</p>
 <ol>
 <li>The ID of the div that should become the map. e.g. <code>slippy-map</code> like above.</li>
-<li>Optionally, a Configuration object. If none is provided, <code>showMap</code> will use the default configuration.</li>
+<li>A configuration object. If none is provided, <code>showMap</code> will use the default configuration.</li>
 </ol>
 <pre class="prettyprint source"><code>&lt;script>
-  showMap(&quot;mapid&quot;);
+  showMap(&quot;slippy-map&quot;);
   // let someConfiguration = new Configuration();
   /* customize the configuration */
-  // showMap(&quot;mapid&quot;, someConfiguration);
+  // showMap(&quot;slippy-map&quot;, someConfiguration);
 &lt;/script>
 </code></pre>
-<p>The div can also have a few extra attributes that'll be used at map creation.
-Here's a list of all currently supported attributes, along with a few examples.</p>
+<p>The map's div can have special attributes to change the behaviour of the map.
+Here's a list of all currently supported attributes + examples.</p>
 <ul>
 <li><code>center=&quot;[number, number]</code>: centers the map on some coordinates.
 *<code>center=&quot;[50.605902641613284, 4.752960205078125]&quot;</code></li>
@@ -82,24 +82,24 @@ Here's a list of all currently supported attributes, along with a few examples.<
 </ul>
 </li>
 <li><code>tileLayer=&quot;url&quot;</code>: This one's a bit more advanced. This is used to override the tile
-layer. If you don't know how tile layers work, don't change it.
+layer (the actual map). If you don't know how tile layers work, you should probably not change it.
 <ul>
 <li><code>tileLayer=&quot;https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png&quot;</code></li>
 </ul>
 </li>
-<li><code>tileLayerAttribution=&quot;text&quot;</code>: Changes the tileLayer's attribution. If you didn't change the tileLayer, don't change it.
+<li><code>tileLayerAttribution=&quot;text&quot;</code>: Changes the tileLayer's attribution. If you didn't change the tileLayer, changing it is not recommended.
 <ul>
 <li><code>tileLayer=&quot;&lt;a href=&quot;https://www.openstreetmap.org/copyright&quot;&gt;OpenStreetMap&lt;/a&gt; contributors&quot;</code></li>
 </ul>
 </li>
 <li><code>maxElements=&quot;number&quot;</code>: Limits the number of features that can appear on screen.
-Use <code>&quot;0&quot;</code> to remove the limit, else use a positive integer.
+Use <code>&quot;0&quot;</code> to remove the limit, else use a positive integer to set a limit.
 <ul>
 <li><code>maxElements=&quot;500&quot;</code>: Maximum 500 features can be shown on screen</li>
 <li><code>maxElements=&quot;0&quot;</code>: An unlimited number of feature can appear on screen.</li>
 </ul>
 </li>
-<li><code>focusOn=&quot;query&quot;</code>: Performs a nominatim search for <code>query</code> and centers the map on the first result.
+<li><code>focusOn=&quot;query&quot;</code>: Performs a nominatim search for <code>query</code> and centers the map on the first result. (See the <code>focusOn</code> function below)
 <ul>
 <li><code>focusOn=&quot;Bruxelles&quot;</code>: Centers the map on Brussels</li>
 <li><code>focusOn=&quot;Kortrijk&quot;</code>: Centers the map on Kortrijk</li>
@@ -107,39 +107,40 @@ Use <code>&quot;0&quot;</code> to remove the limit, else use a positive integer.
 </ul>
 </li>
 </ul>
-<p>Note that changing div attributes is great if you want to touch as little Javascript as possible. However, for maximum control over the map, use the Configuration object.
-The Configuration object can only be used at map creation, and when querying for features.</p>
-<p>Both <code>showMap</code> and <code>queryAndShowFeatures</code> will use the default configuration is no configuration object is passed.</p>
-<p>After the map has been created, you'll need to use Leaflet methods to change it, or
-you can check a few other methods such as <code>focusOn</code> and <code>queryAndShowFeatures</code>.</p>
+<p>Changing div attributes is great if you want to touch as little Javascript as possible. However, for maximum control over the map, use the Configuration object.</p>
+<p>Please note that the <code>Configuration</code> is only used at map creation and when querying for features, so changing the configuration after the map has been shown will not change it! After the map has been created, you'll need to use Leaflet methods or functions such as <code>focusOn</code> and <code>queryAndShowFeatures</code> to change it.</p>
 <h2>Showing features</h2>
 <p>To show features on the map, add an event listener for the <code>drawmarkers</code> event. In that listener, call <code>queryAndShowFeatures</code>.</p>
 <p><code>queryAndShowFeatures</code> takes 3 parameters.</p>
 <ul>
-<li>the map</li>
-<li>a query. This is an overpass query, you can write one manually if you're experienced, else use <code>getSimpleQuery</code>.
+<li>The Leaflet map instance</li>
+<li>An Overpass query. You can write one manually if you have experience with Overpass, or you can use <code>getSimpleQuery</code>.
 <ul>
 <li><code>getSimpleQuery</code> can create a basic query for you. If you give it no parameters, it'll return a query for every single node in the area.
-If you give it a <code>key</code> and <code>value</code> parameter, it'll only return elements that have that <code>key</code> and <code>value</code>.</li>
+If you give it a <code>key</code> and <code>value</code> parameter, it'll only return elements that have that <code>key</code> and <code>value</code>.
+<ul>
+<li>For example, <code>getSimpleQuery(&quot;craft&quot;, &quot;brewery&quot;)</code> will generate a query that will return every brewery.</li>
 </ul>
 </li>
-<li>the configuration object (can be omitted, if that's the case, it will use the default configuration).</li>
+<li>Note: You can (and should) use the <code>{{bbox}}</code> substitution in the query.</li>
+</ul>
+</li>
+<li>The <code>Configuration</code> object (can be omitted, if that's the case, the default configuration is used).</li>
 </ul>
 <p>Example usage:</p>
 <pre class="prettyprint source"><code>  // Shows all breweries in the area.
   map.addEventListener('drawmarkers', function() {
-    queryAndShowFeatures(map, getSimpleQuery(&quot;craft&quot;, &quot;brewery&quot;), configuration);
+    queryAndShowFeatures(map, getSimpleQuery(&quot;craft&quot;, &quot;brewery&quot;));
   });
 </code></pre>
-<p>The <code>drawmarkers</code> event is an extension of the <code>moveened</code> event. It is called each time we need to redraw the markers on the map.</p>
+<p>The <code>drawmarkers</code> event is an extension of the Leaflet <code>moveened</code> event. It is called each time we need to redraw the markers on the map.</p>
 <p><code>drawmarkers</code> is only fired if:</p>
 <ul>
-<li>It's the first time we move the map (= the map has been initialized)</li>
-<li>If we move the map outside of a given area around the current viewbox determined by <code>Configuration.boundsPadding</code>.
+<li>It's the first time we move/display the map</li>
+<li>If we move the map outside of an area around the current viewbox; the leeway is determined by <code>Configuration.boundsPadding</code>.
 <ul>
 <li>To put it simply, when we query for features, we get every feature in the area <em>plus a little more</em>.
-If we move to an area for which we have no information about markers, the event if fired again.
-It essentially exists as an optimization.</li>
+If we move to an area for which we have no information about markers, the event if fired again to fetch the markers for that area.</li>
 </ul>
 </li>
 </ul>
@@ -154,12 +155,16 @@ It essentially exists as an optimization.</li>
 </li>
 <li>To center the map using a query, use <code>focusOn(map, query)</code> where <code>query</code> is a string containing a query. The query can be anything you want. It's just text, like a Google search.
 <ul>
-<li>&quot;Gent&quot;, &quot;Kortrijk&quot;, &quot;Herman Teirlinckgebouw&quot; are all valid queries.</li>
+<li>&quot;Gent&quot;, &quot;Kortrijk&quot;, &quot;Herman Teirlinckgebouw&quot; are all valid queries.
+<ul>
+<li>e.g. <code>focusOn(map, &quot;Gent&quot;)</code>, <code>focusOn(map, &quot;Kortrijk&quot;)</code> or <code>focusOn(map, &quot;Herman Teirlinckgebouw&quot;)</code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 <h2>Popups</h2>
-<p>Popup texts can be customized by changing the <code>popupTextProvider</code> function in the Configuration object you're passing to <code>queryAndShowFeatures</code>.
+<p>Popup texts can be customized by changing the <code>popupTextProvider</code> function in the <code>Configuration</code> object you're passing to <code>queryAndShowFeatures</code>.
 See <code>PopupTextProvider</code>, <code>Configuration.popupTextProvider</code> and <code>defaultPopupTextProvider</code> for more information.</p></article>
     </section>
 
@@ -177,7 +182,7 @@ See <code>PopupTextProvider</code>, <code>Configuration.popupTextProvider</code>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jul 17 2019 09:41:30 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Mon Jul 22 2019 11:48:12 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
