@@ -28,10 +28,10 @@ Once that's done, you can call `showMap` to actually show the map.
 
 ```
 <script>
-  showMap("mapid");
+  showMap("slippy-map");
   // let someConfiguration = new Configuration();
   /* customize the configuration */
-  // showMap("mapid", someConfiguration);
+  // showMap("slippy-map", someConfiguration);
 </script>
 ```
 
