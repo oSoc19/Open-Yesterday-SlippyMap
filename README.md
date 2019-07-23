@@ -11,9 +11,11 @@
 ## Documentation
 
 Generate documentation by cd'ing to the root of the project and running `jsdoc -c docs/jsdoc.conf.json`. 
-The documentation will be found in the `docs/web` folder.
+After that, documentation should be available in the `docs/web` folder.
 
-Documentation is also available online https://osoc19.github.io/Open-Yesterday-SlippyMap/docs/web/
+You should regenerate documentation whenever you change a function's documentation, signature or add a new variable/function at the global scope.
+
+[Documentation is also available online](https://osoc19.github.io/Open-Yesterday-SlippyMap/docs/web/)
 
 ## License
 
